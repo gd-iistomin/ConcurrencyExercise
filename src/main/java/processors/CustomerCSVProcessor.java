@@ -4,6 +4,7 @@ import entities.Customer;
 
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class CustomerCSVProcessor implements Runnable {
@@ -13,28 +14,34 @@ public class CustomerCSVProcessor implements Runnable {
     private int num;
     private Queue<Customer> inputQueue;
     private Queue<String> outputQueue;
+    private AtomicInteger activeReaders;
+    private AtomicInteger activeProcessors;
 
-    public CustomerCSVProcessor(Queue<Customer> inputQueue, Queue<String> outputQueue) {
+    public CustomerCSVProcessor(Queue<Customer> inputQueue, Queue<String> outputQueue, AtomicInteger activeReaders, AtomicInteger activeProcessors) {
         num = ++count;
         this.inputQueue = inputQueue;
         this.outputQueue = outputQueue;
+        this.activeReaders = activeReaders;
+        this.activeProcessors = activeProcessors;
     }
 
     @Override
     public void run() {
         for (int i = 0; i < 50; i++) {
             Customer cust;
-            while ((cust = inputQueue.poll()) != null) {
-                outputQueue.add(process(cust));
-                objectCount++;
-//                System.out.println(String.format("Processed by %d", num));
-            }
-            try {
-                Thread.currentThread().sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            while (activeReaders.get() > 0 || !inputQueue.isEmpty()) {
+                while ((cust = inputQueue.poll()) != null) {
+                    outputQueue.add(process(cust));
+                    objectCount++;
+                }
+                try {
+                    Thread.currentThread().sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
+        activeProcessors.decrementAndGet();
         System.out.println(String.format("Processor %d processed %d objects", num, objectCount));
     }
 

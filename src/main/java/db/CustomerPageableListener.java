@@ -10,6 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CustomerPageableListener implements Runnable {
     private final int limit;
@@ -18,10 +19,12 @@ public class CustomerPageableListener implements Runnable {
 
     private int objectCount = 0;
     private Queue<Customer> queue;
+    private AtomicInteger activeReaders;
 
-    public CustomerPageableListener(int limit, Queue queue) {
+    public CustomerPageableListener(int limit, Queue<Customer> queue, AtomicInteger activeReaders) {
         this.limit = limit;
         this.queue = queue;
+        this.activeReaders = activeReaders;
     }
 
     @Override
@@ -36,6 +39,7 @@ public class CustomerPageableListener implements Runnable {
                 System.out.println(e.getMessage());
             }
         }
+        activeReaders.decrementAndGet();
         System.out.println(String.format("%d customers fetched from db", objectCount));
     }
 

@@ -7,10 +7,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DBUtils {
+public class CustomerFiller implements Runnable {
 
-    public static void insertRandomCustomers(long amount) {
+    private int amount;
 
+    public CustomerFiller(int amount) {
+        this.amount = amount;
+    }
+
+    @Override
+    public void run() {
         try (Connection conn = DataSource.getConnection();
              Statement stmt = conn.createStatement()) {
 

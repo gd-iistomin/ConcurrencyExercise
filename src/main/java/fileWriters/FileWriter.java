@@ -6,16 +6,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileLock;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileWriter implements Runnable {
     private Queue<String> queue;
     private String fileName;
 
     private int objectCount = 0;
+    AtomicInteger activeProcessors;
 
-    public FileWriter(Queue<String> queue, String fileName) {
+    public FileWriter(Queue<String> queue, String fileName, AtomicInteger activeProcessors) {
         this.queue = queue;
         this.fileName = fileName;
+        this.activeProcessors = activeProcessors;
     }
 
     @Override
@@ -24,13 +27,13 @@ public class FileWriter implements Runnable {
             try (FileLock lock = fos.getChannel().lock()) {
                 DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
                 String str;
-                for (int i = 0; i < 10; i++) {
+                while (activeProcessors.get() > 0 || !queue.isEmpty()) {
                     while ((str = queue.poll()) != null) {
                         outStream.write((str + "\n").getBytes("UTF-8"));
                         objectCount++;
                     }
                     outStream.flush();
-                    Thread.currentThread().sleep(500);
+                    Thread.currentThread().sleep(100);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
