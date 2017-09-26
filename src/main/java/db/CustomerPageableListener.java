@@ -9,14 +9,34 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
-public class CustomerPageableListener {
+public class CustomerPageableListener implements Runnable {
     private final int limit;
     private int offset;
     private boolean hasNext = true;
 
-    public CustomerPageableListener(int limit) {
+    private int objectCount = 0;
+    private Queue<Customer> queue;
+
+    public CustomerPageableListener(int limit, Queue queue) {
         this.limit = limit;
+        this.queue = queue;
+    }
+
+    @Override
+    public void run() {
+        while (hasNext) {
+            try {
+                getNextChunk().forEach(customer -> {
+                    queue.add(customer);
+                    objectCount++;
+                });
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        System.out.println(String.format("%d customers fetched from db", objectCount));
     }
 
     public List<Customer> getNextChunk() throws SQLException {

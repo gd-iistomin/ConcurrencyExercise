@@ -1,23 +1,22 @@
 import db.CustomerPageableListener;
-import fileWriters.CustomerCSVWriter;
+import entities.Customer;
+import fileWriters.FileWriter;
 import processors.CustomerCSVProcessor;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Main {
 
     public static void main(String[] args) throws SQLException, IOException {
-        CustomerCSVProcessor customerCSVProcessor = new CustomerCSVProcessor();
-        CustomerCSVWriter customerCSVWriter = new CustomerCSVWriter();
-        CustomerPageableListener pageable = new CustomerPageableListener(10);
+        ConcurrentLinkedQueue<String> stringQueue = new ConcurrentLinkedQueue<>();
+        ConcurrentLinkedQueue<Customer> customerQueue = new ConcurrentLinkedQueue<>();
 
-        while (pageable.hasNext()) {
-            List<String> strings = customerCSVProcessor.process(pageable.getNextChunk());
-            strings.forEach(customerCSVWriter::pushToQueue);
+        new Thread(new CustomerPageableListener(20, customerQueue)).start();
+        for (int i = 0; i < Runtime.getRuntime().availableProcessors(); i++) {
+            new Thread(new CustomerCSVProcessor(customerQueue, stringQueue)).start();
         }
-
-        customerCSVWriter.write();
+        new Thread(new FileWriter(stringQueue, "customers.csv")).start();
     }
 }
