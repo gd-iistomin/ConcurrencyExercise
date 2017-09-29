@@ -1,5 +1,6 @@
 package db;
 
+import db.config.DataSource;
 import generators.CustomerGenerator;
 import generators.QueryGenerator;
 

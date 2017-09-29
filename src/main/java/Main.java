@@ -1,28 +1,39 @@
-import db.CustomerPageableListener;
-import entities.Customer;
-import fileWriters.FileWriter;
-import processors.CustomerCSVProcessor;
+import db.readers.CustomerPageableReader;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.*;
 
 public class Main {
 
+    private static final int THREADS = Runtime.getRuntime().availableProcessors();
+
     public static void main(String[] args) throws SQLException, IOException {
-        ConcurrentLinkedQueue<String> stringQueue = new ConcurrentLinkedQueue<>();
-        ConcurrentLinkedQueue<Customer> customerQueue = new ConcurrentLinkedQueue<>();
+        CountDownLatch activeReaders = new CountDownLatch(1);
+        ExecutorService processorService = Executors.newFixedThreadPool(THREADS);
+        ExecutorService writerService = Executors.newSingleThreadExecutor();
 
-        AtomicInteger activeCustomerReaders = new AtomicInteger(0);
-        AtomicInteger activeCustomerProcessors = new AtomicInteger(0);
+        long startTime = System.currentTimeMillis();
+        new Thread(new CustomerPageableReader(1000, processorService, writerService, activeReaders)).start();
 
-        new Thread(new CustomerPageableListener(10000, customerQueue, activeCustomerReaders)).start();
-        activeCustomerReaders.incrementAndGet();
-        for (int i = 0; i < Runtime.getRuntime().availableProcessors(); i++) {
-            new Thread(new CustomerCSVProcessor(customerQueue, stringQueue, activeCustomerReaders, activeCustomerProcessors)).start();
-            activeCustomerProcessors.incrementAndGet();
+        try {
+            activeReaders.await();
+            processorService.shutdown();
+            processorService.awaitTermination(1, TimeUnit.MINUTES);
+            writerService.shutdown();
+            writerService.awaitTermination(1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        new Thread(new FileWriter(stringQueue, "customers.csv", activeCustomerProcessors)).start();
+
+        long endTime   = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        long hours = totalTime / 3600000;
+        totalTime -= hours * 3600000;
+        long mins = totalTime / 60000;
+        totalTime -= mins * 60000;
+        long secs = totalTime / 1000;
+        long ms = totalTime - secs * 1000;
+        System.out.println(String.format("Execution time: %d:%d:%d:%d", hours, mins, secs, ms));
     }
 }

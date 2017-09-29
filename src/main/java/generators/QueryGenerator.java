@@ -21,7 +21,7 @@ public class QueryGenerator {
         return SELECT_ALL_CUSTOMERS;
     }
 
-    public static String selectChunkOfCustomers(int offset, int limit) {
+    public static String selectChunkOfCustomers(long offset, int limit) {
         return String.format(SELECT_CUSTOMERS_CHUNK_TEMPLATE, offset, limit);
     }
 
