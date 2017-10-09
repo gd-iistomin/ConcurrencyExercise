@@ -4,6 +4,8 @@ import utils.Utils;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class Main {
@@ -13,16 +15,23 @@ public class Main {
 
     public static void main(String[] args) throws SQLException, IOException {
         ExecutorService readerService = Executors.newFixedThreadPool(READERS);
+        List<Future<Boolean>> readResults = new ArrayList<>();
         ExecutorService processorService = Executors.newFixedThreadPool(THREADS);
         ExecutorService writerService = Executors.newSingleThreadExecutor();
 
         long startTime = System.currentTimeMillis();
-        readerService.execute(new CustomerPageableReader(20000, processorService, writerService));
-        readerService.execute(new OrderPageableReader(20000, processorService, writerService));
+        readResults.add(readerService.submit(new CustomerPageableReader(20000, processorService, writerService)));
+        readResults.add(readerService.submit(new OrderPageableReader(20000, processorService, writerService)));
         readerService.shutdown();
 
         try {
-            readerService.awaitTermination(1, TimeUnit.HOURS);
+            readResults.forEach(result -> {
+                try {
+                    result.get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
             Utils.log("Readers done");
             processorService.shutdown();
             processorService.awaitTermination(1, TimeUnit.HOURS);

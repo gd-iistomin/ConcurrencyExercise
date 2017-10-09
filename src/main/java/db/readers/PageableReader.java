@@ -10,10 +10,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-public abstract class PageableReader<T> implements Runnable {
+public abstract class PageableReader<T> implements Callable<Boolean> {
     private final int limit;
     private long offset;
     private boolean hasNext = true;
@@ -31,7 +32,7 @@ public abstract class PageableReader<T> implements Runnable {
     }
 
     @Override
-    public void run() {
+    public Boolean call() {
         while (hasNext) {
             try {
                 List<T> entities = getNextChunk();
@@ -39,9 +40,11 @@ public abstract class PageableReader<T> implements Runnable {
                 objectCount += entities.size();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
+                return false;
             }
         }
         Utils.log(String.format("%d entities fetched from db", objectCount));
+        return true;
     }
 
     protected List<T> getNextChunk() throws SQLException {
