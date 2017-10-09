@@ -1,6 +1,7 @@
 
 import db.CustomerFiller;
 import db.OrderFiller;
+import utils.Utils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,12 +20,6 @@ public class DBLoad {
 
         long endTime   = System.currentTimeMillis();
         long totalTime = endTime - startTime;
-        long hours = totalTime / 3600000;
-        totalTime -= hours * 3600000;
-        long mins = totalTime / 60000;
-        totalTime -= mins * 60000;
-        long secs = totalTime / 1000;
-        long ms = totalTime - secs * 1000;
-        System.out.println(String.format("Execution time: %d:%d:%d:%d", hours, mins, secs, ms));
+        Utils.printExecutionTime(totalTime);
     }
 }

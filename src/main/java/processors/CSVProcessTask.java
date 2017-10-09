@@ -21,7 +21,6 @@ public abstract class CSVProcessTask<T> implements Runnable {
                 .map(this::process)
                 .collect(Collectors.toList());
         writerService.execute(createWriteTask(outputList));
-//        System.out.println(String.format("%d entities processed", outputList.size()));
     }
 
     protected abstract WriteTask createWriteTask(List<String> strings);

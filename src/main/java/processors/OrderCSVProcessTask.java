@@ -2,6 +2,7 @@ package processors;
 
 import entities.Order;
 import fileWriters.WriteTask;
+import utils.Utils;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -14,6 +15,7 @@ public class OrderCSVProcessTask extends CSVProcessTask<Order> {
 
     @Override
     protected WriteTask createWriteTask(List<String> strings) {
+        Utils.log("Create new 'write' task for 'order' entities");
         return new WriteTask("orders.csv", strings);
     }
 

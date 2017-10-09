@@ -2,6 +2,7 @@ package db.readers;
 
 import db.config.DataSource;
 import processors.CSVProcessTask;
+import utils.Utils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -20,16 +21,13 @@ public abstract class PageableReader<T> implements Runnable {
     private int objectCount = 0;
     private ExecutorService processorService;
     private ExecutorService writerService;
-    private CountDownLatch activeReaders;
 
     public PageableReader(int limit,
                           ExecutorService processorService,
-                          ExecutorService writerService,
-                          CountDownLatch activeReaders) {
+                          ExecutorService writerService) {
         this.limit = limit;
         this.processorService = processorService;
         this.writerService = writerService;
-        this.activeReaders = activeReaders;
     }
 
     @Override
@@ -43,8 +41,7 @@ public abstract class PageableReader<T> implements Runnable {
                 System.out.println(e.getMessage());
             }
         }
-        System.out.println(String.format("%d entities fetched from db", objectCount));
-        activeReaders.countDown();
+        Utils.log(String.format("%d entities fetched from db", objectCount));
     }
 
     protected List<T> getNextChunk() throws SQLException {

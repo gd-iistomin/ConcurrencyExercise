@@ -4,21 +4,24 @@ import entities.Order;
 import generators.QueryGenerator;
 import processors.CSVProcessTask;
 import processors.OrderCSVProcessTask;
+import utils.Utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 public class OrderPageableReader extends PageableReader<Order> {
 
-    public OrderPageableReader(int limit, ExecutorService processorService, ExecutorService writerService, CountDownLatch activeReaders) {
-        super(limit, processorService, writerService, activeReaders);
+    public OrderPageableReader(int limit,
+                               ExecutorService processorService,
+                               ExecutorService writerService) {
+        super(limit, processorService, writerService);
     }
 
     @Override
     protected CSVProcessTask<Order> createProcessTask(List<Order> entities, ExecutorService writerService) {
+        Utils.log("Create new 'process' task for 'order' entities");
         return new OrderCSVProcessTask(entities, writerService);
     }
 
