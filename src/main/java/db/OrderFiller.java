@@ -1,12 +1,14 @@
 package db;
 
 import db.config.DataSource;
+import entities.Order;
 import generators.OrderGenerator;
 import generators.QueryGenerator;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Date;
 
 public class OrderFiller implements Runnable {
 
@@ -18,13 +20,24 @@ public class OrderFiller implements Runnable {
 
     @Override
     public void run() {
-        try (Connection conn = DataSource.getConnection();
-             Statement stmt = conn.createStatement()) {
+        try (Connection conn = DataSource.getConnection()) {
+            PreparedStatement insertOrderPS = conn.prepareStatement(QueryGenerator.insertOrder());
 
             for (int i = 0; i < amount; i++) {
-                stmt.addBatch(QueryGenerator.insertOrder(OrderGenerator.generate()));
+                Order order = OrderGenerator.generate();
+
+                insertOrderPS.setInt(1, order.getCost());
+                insertOrderPS.setString(2, order.getDeliveryAddress());
+                insertOrderPS.setString(3, order.getOutpostAddress());
+                insertOrderPS.setDate(4, Date.valueOf(order.getOrderDate()));
+                insertOrderPS.setLong(5, order.getCustomerId());
+                insertOrderPS.setBoolean(6, order.isOrderPaid());
+                insertOrderPS.setBoolean(7, order.isOrderSent());
+                insertOrderPS.setBoolean(8, order.isOrderDelivered());
+
+                insertOrderPS.addBatch();
             }
-            stmt.executeBatch();
+            insertOrderPS.executeBatch();
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());

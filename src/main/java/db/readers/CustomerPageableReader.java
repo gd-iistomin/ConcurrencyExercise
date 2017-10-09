@@ -24,8 +24,8 @@ public class CustomerPageableReader extends PageableReader<Customer> {
     }
 
     @Override
-    protected String selectChunkSQL(long offset, int limit) {
-        return QueryGenerator.selectChunkOfCustomers(offset, limit);
+    protected String selectChunkSQL() {
+        return QueryGenerator.selectChunkOfCustomers();
     }
 
     @Override

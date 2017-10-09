@@ -1,10 +1,12 @@
 package db;
 
 import db.config.DataSource;
+import entities.Customer;
 import generators.CustomerGenerator;
 import generators.QueryGenerator;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -18,13 +20,21 @@ public class CustomerFiller implements Runnable {
 
     @Override
     public void run() {
-        try (Connection conn = DataSource.getConnection();
-             Statement stmt = conn.createStatement()) {
+        try (Connection conn = DataSource.getConnection()) {
+            PreparedStatement insertCustomerPS = conn.prepareStatement(QueryGenerator.insertCustomer());
 
             for (int i = 0; i < amount; i++) {
-                stmt.addBatch(QueryGenerator.insertCustomer(CustomerGenerator.generate()));
+                Customer customer = CustomerGenerator.generate();
+
+                insertCustomerPS.setString(1, customer.getName());
+                insertCustomerPS.setInt(2, customer.getAge());
+                insertCustomerPS.setString(3, customer.getCity());
+                insertCustomerPS.setInt(4, customer.getBalance());
+                insertCustomerPS.setInt(5, customer.getOrdersCount());
+
+                insertCustomerPS.addBatch();
             }
-            stmt.executeBatch();
+            insertCustomerPS.executeBatch();
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());

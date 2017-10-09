@@ -26,8 +26,8 @@ public class OrderPageableReader extends PageableReader<Order> {
     }
 
     @Override
-    protected String selectChunkSQL(long offset, int limit) {
-        return QueryGenerator.selectChunkOfOrders(offset, limit);
+    protected String selectChunkSQL() {
+        return QueryGenerator.selectChunkOfOrders();
     }
 
     @Override
