@@ -1,7 +1,7 @@
 package db.readers;
 
 import entities.Order;
-import generators.QueryGenerator;
+import db.QueryGenerator;
 import processors.CSVProcessTask;
 import processors.OrderCSVProcessTask;
 import utils.Utils;
@@ -47,6 +47,7 @@ public class OrderPageableReader extends PageableReader<Order> {
         order.setOrderPaid(rs.getBoolean(7));
         order.setOrderSent(rs.getBoolean(8));
         order.setOrderDelivered(rs.getBoolean(9));
+        order.setGroup(rs.getInt(10));
         return order;
     }
 }

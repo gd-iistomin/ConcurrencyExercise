@@ -24,6 +24,7 @@ public class OrderGenerator {
         order.setOrderPaid(randomNumberGenerator.nextBoolean());
         order.setOrderSent(randomNumberGenerator.nextBoolean());
         order.setOrderDelivered(randomNumberGenerator.nextBoolean());
+        order.setGroup(randomNumberGenerator.nextInt(10));
 
         return order;
     }

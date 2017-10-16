@@ -3,12 +3,10 @@ package db;
 import db.config.DataSource;
 import entities.Customer;
 import generators.CustomerGenerator;
-import generators.QueryGenerator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class CustomerFiller implements Runnable {
 
@@ -31,6 +29,7 @@ public class CustomerFiller implements Runnable {
                 insertCustomerPS.setString(3, customer.getCity());
                 insertCustomerPS.setInt(4, customer.getBalance());
                 insertCustomerPS.setInt(5, customer.getOrdersCount());
+                insertCustomerPS.setInt(6, customer.getGroup());
 
                 insertCustomerPS.addBatch();
             }

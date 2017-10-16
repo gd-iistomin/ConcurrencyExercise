@@ -1,7 +1,7 @@
 package db.readers;
 
 import entities.Customer;
-import generators.QueryGenerator;
+import db.QueryGenerator;
 import processors.CSVProcessTask;
 import processors.CustomerCSVProcessTask;
 import utils.Utils;
@@ -42,6 +42,7 @@ public class CustomerPageableReader extends PageableReader<Customer> {
         customer.setCity(rs.getString(4));
         customer.setBalance(rs.getInt(5));
         customer.setOrdersCount(rs.getInt(6));
+        customer.setGroup(rs.getInt(7));
         return customer;
     }
 }

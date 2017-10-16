@@ -19,6 +19,7 @@ public class CustomerGenerator {
         customer.setCity(String.format("City %s", salt));
         customer.setBalance(randomNumberGenerator.nextInt(1000000));
         customer.setOrdersCount(randomNumberGenerator.nextInt(10000));
+        customer.setGroup(randomNumberGenerator.nextInt(10));
 
         return customer;
     }

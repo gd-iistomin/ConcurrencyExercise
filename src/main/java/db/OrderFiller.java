@@ -3,7 +3,6 @@ package db;
 import db.config.DataSource;
 import entities.Order;
 import generators.OrderGenerator;
-import generators.QueryGenerator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,6 +33,7 @@ public class OrderFiller implements Runnable {
                 insertOrderPS.setBoolean(6, order.isOrderPaid());
                 insertOrderPS.setBoolean(7, order.isOrderSent());
                 insertOrderPS.setBoolean(8, order.isOrderDelivered());
+                insertOrderPS.setInt(9, order.getGroup());
 
                 insertOrderPS.addBatch();
             }

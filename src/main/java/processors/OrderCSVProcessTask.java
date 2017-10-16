@@ -21,7 +21,7 @@ public class OrderCSVProcessTask extends CSVProcessTask<Order> {
 
     @Override
     protected String process(Order entity) {
-        return String.format("%d, %d, %s, %s, %s, %d, %b, %b, %b",
+        return String.format("%d, %d, %s, %s, %s, %d, %b, %b, %b, %d",
                 entity.getId(),
                 entity.getCost(),
                 entity.getDeliveryAddress(),
@@ -30,6 +30,7 @@ public class OrderCSVProcessTask extends CSVProcessTask<Order> {
                 entity.getCustomerId(),
                 entity.isOrderPaid(),
                 entity.isOrderSent(),
-                entity.isOrderDelivered());
+                entity.isOrderDelivered(),
+                entity.getGroup());
     }
 }

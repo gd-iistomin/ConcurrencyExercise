@@ -21,12 +21,13 @@ public class CustomerCSVProcessTask extends CSVProcessTask<Customer> {
 
     @Override
     protected String process(Customer entity) {
-        return String.format("%d, %s, %d, %s, %d, %d",
+        return String.format("%d, %s, %d, %s, %d, %d, %d",
                 entity.getId(),
                 entity.getName(),
                 entity.getAge(),
                 entity.getCity(),
                 entity.getBalance(),
-                entity.getOrdersCount());
+                entity.getOrdersCount(),
+                entity.getGroup());
     }
 }

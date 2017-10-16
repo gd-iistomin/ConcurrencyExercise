@@ -12,6 +12,7 @@ public class Order {
     private boolean orderPaid;
     private boolean orderSent;
     private boolean orderDelivered;
+    private int group;
 
     public long getId() {
         return id;
@@ -83,5 +84,13 @@ public class Order {
 
     public void setOrderDelivered(boolean orderDelivered) {
         this.orderDelivered = orderDelivered;
+    }
+
+    public int getGroup() {
+        return group;
+    }
+
+    public void setGroup(int group) {
+        this.group = group;
     }
 }

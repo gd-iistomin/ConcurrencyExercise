@@ -8,6 +8,7 @@ public class Customer {
     private String city;
     private int balance;
     private int ordersCount;
+    private int group;
 
     public long getId() {
         return id;
@@ -55,5 +56,13 @@ public class Customer {
 
     public void setOrdersCount(int ordersCount) {
         this.ordersCount = ordersCount;
+    }
+
+    public int getGroup() {
+        return group;
+    }
+
+    public void setGroup(int group) {
+        this.group = group;
     }
 }
