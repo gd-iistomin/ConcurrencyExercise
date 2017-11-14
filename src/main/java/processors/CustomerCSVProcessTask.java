@@ -1,9 +1,12 @@
 package processors;
 
+import com.google.common.collect.ListMultimap;
 import entities.Customer;
 import fileWriters.WriteTask;
+import processors.data.ProcessedEntry;
 import utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -14,14 +17,21 @@ public class CustomerCSVProcessTask extends CSVProcessTask<Customer> {
     }
 
     @Override
-    protected WriteTask createWriteTask(List<String> strings) {
+    protected List<WriteTask> createWriteTask(List<ProcessedEntry> data) {
         Utils.log("Create new 'write' task for 'customer' entities");
-        return new WriteTask("customers.csv", strings);
+        List<WriteTask> tasks = new ArrayList<>();
+
+        ListMultimap<String, String> multimap = groupByParam(data);
+        multimap.keySet().forEach(key ->
+                tasks.add(new WriteTask(String.format("output/customers/group_%s.csv", key), multimap.get(key))));
+
+        return tasks;
     }
 
     @Override
-    protected String process(Customer entity) {
-        return String.format("%d, %s, %d, %s, %d, %d, %d",
+    protected ProcessedEntry process(Customer entity) {
+        String param = String.valueOf(entity.getGroup());
+        String string = String.format("%d, %s, %d, %s, %d, %d, %d",
                 entity.getId(),
                 entity.getName(),
                 entity.getAge(),
@@ -29,5 +39,7 @@ public class CustomerCSVProcessTask extends CSVProcessTask<Customer> {
                 entity.getBalance(),
                 entity.getOrdersCount(),
                 entity.getGroup());
+
+        return new ProcessedEntry(string, param);
     }
 }
